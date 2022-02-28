@@ -3,6 +3,7 @@ package log
 import (
 	"bufio"
 	"bytes"
+	"errors"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -183,4 +184,17 @@ func TestLoggerClose(t *testing.T) {
 		strings.Contains(string(content), str)
 		_ = os.Remove(EncodedFilename)
 	})
+}
+
+func TestErrSlice(t *testing.T) {
+	es := NewErrSlice()
+	assert.Equal(t, "", es.Error())
+	es.Append(errors.New("error1"))
+	assert.Equal(t, "error1", es.Error())
+
+	es.AppendStr("error2")
+	assert.Equal(t, "error1 : error2", es.Error())
+
+	es.Append(errors.New("error3"))
+	assert.Equal(t, "error1 : error2 : error3", es.Error())
 }

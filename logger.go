@@ -17,9 +17,10 @@ type Logger struct {
 
 // New creates a new Logger.
 func New(opts *Options) *Logger {
-	if errs := opts.Validate(); len(errs) > 0 {
+	if errs := opts.Validate(); errs.Len() > 0 {
 		panic(errs)
 	}
+
 	var cores []zapcore.Core
 
 	encoderConfig := zapcore.EncoderConfig{
