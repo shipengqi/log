@@ -62,28 +62,28 @@ func NewOptions() *Options {
 }
 
 // Validate validates the options fields.
-func (o *Options) Validate() []error {
-	var errs []error
+func (o *Options) Validate() ErrSlice {
+	var errs ErrSlice
 	var level Level
 
 	if o.ConsoleLevel != "" {
 		if err := level.UnmarshalText([]byte(o.ConsoleLevel)); err != nil {
-			errs = append(errs, err)
+			errs.Append(err)
 		}
 	}
 
 	if o.FileLevel != "" {
 		if err := level.UnmarshalText([]byte(o.FileLevel)); err != nil {
-			errs = append(errs, err)
+			errs.Append(err)
 		}
 	}
 
 	if o.DisableConsole && o.DisableFile {
-		errs = append(errs, errors.New("no enabled logger"))
+		errs.Append(errors.New("no enabled logger"))
 	}
 
 	if !o.DisableFile && o.Output == "" {
-		errs = append(errs, errors.New("no log output"))
+		errs.Append(errors.New("no log output"))
 	}
 	return errs
 }

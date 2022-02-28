@@ -1,7 +1,12 @@
 // Package log is a structured logger for Go, based on https://github.com/uber-go/zap.
 package log
 
-import "go.uber.org/zap"
+import (
+	"errors"
+	"strings"
+
+	"go.uber.org/zap"
+)
 
 var (
 	defaultLogger *Logger
@@ -11,6 +16,46 @@ var (
 
 func init() {
 	defaultLogger = New(NewOptions())
+}
+
+type ErrSlice struct {
+	errs []error
+}
+
+func NewErrSlice() ErrSlice {
+	return ErrSlice{
+		errs: make([]error, 0),
+	}
+}
+
+func (es *ErrSlice) Error() string {
+	var b strings.Builder
+	if len(es.errs) == 0 {
+		return ""
+	}
+
+	b.WriteString(es.errs[0].Error())
+
+	for i := 1; i < len(es.errs); i++ {
+		b.WriteString(" : ")
+		b.WriteString(es.errs[i].Error())
+	}
+
+	return b.String()
+}
+
+func (es *ErrSlice) Len() int {
+	return len(es.errs)
+}
+
+func (es *ErrSlice) Append(err ...error) {
+	es.errs = append(es.errs, err...)
+}
+
+func (es *ErrSlice) AppendStr(err ...string) {
+	for i := range err {
+		es.errs = append(es.errs, errors.New(err[i]))
+	}
 }
 
 type DebugLogger interface {
