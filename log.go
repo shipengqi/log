@@ -11,7 +11,7 @@ import (
 var (
 	_globalL *Logger
 	// EncodedFilename filename for logging when DisableFile is false.
-	EncodedFilename string
+	_globalEncodedFilename string
 )
 
 func init() {
@@ -21,6 +21,11 @@ func init() {
 // L returns the global logger.
 func L() *Logger {
 	return _globalL
+}
+
+// EncodedFilename returns the filename for logging when DisableFile is false.
+func EncodedFilename() string {
+	return _globalEncodedFilename
 }
 
 type ErrSlice struct {
