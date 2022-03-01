@@ -24,13 +24,14 @@ func New(opts *Options) *Logger {
 	var cores []zapcore.Core
 
 	encoderConfig := zapcore.EncoderConfig{
-		NameKey:        "logger",
-		MessageKey:     "msg",
-		StacktraceKey:  "stack",
-		LineEnding:     zapcore.DefaultLineEnding,
-		EncodeLevel:    zapcore.LowercaseLevelEncoder,
-		EncodeDuration: zapcore.MillisDurationEncoder,
-		EncodeCaller:   zapcore.ShortCallerEncoder,
+		NameKey:          "logger",
+		MessageKey:       "msg",
+		StacktraceKey:    "stack",
+		LineEnding:       zapcore.DefaultLineEnding,
+		EncodeLevel:      zapcore.LowercaseLevelEncoder,
+		EncodeDuration:   zapcore.MillisDurationEncoder,
+		EncodeCaller:     zapcore.ShortCallerEncoder,
+		ConsoleSeparator: " ",
 	}
 	if opts.TimeEncoder != nil {
 		encoderConfig.EncodeTime = opts.TimeEncoder
