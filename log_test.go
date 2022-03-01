@@ -13,7 +13,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestDefaultLogger(t *testing.T) {
+func TestGlobalLogger(t *testing.T) {
 	r, w, _ := os.Pipe()
 	tmp := os.Stdout
 	defer func() {
@@ -45,17 +45,17 @@ func TestDefaultLogger(t *testing.T) {
 	Error(str)
 
 	expected := []string{
-		"\x1b[34mINFO\x1b[0m\tHello, world2",
-		"\x1b[33mWARN\x1b[0m\tHello, world3",
-		"\x1b[31mERROR\x1b[0m\tHello, world4",
-		"\x1b[35mDEBUG\x1b[0m\tHello, world!",
-		"\x1b[34mINFO\x1b[0m\tHello, world!",
-		"\x1b[33mWARN\x1b[0m\tHello, world!",
-		"\x1b[31mERROR\x1b[0m\tHello, world!",
-		"debug\tHello, world!",
-		"info\tHello, world!",
-		"warn\tHello, world!",
-		"error\tHello, world!",
+		"\x1b[34mINFO\x1b[0m Hello, world2",
+		"\x1b[33mWARN\x1b[0m Hello, world3",
+		"\x1b[31mERROR\x1b[0m Hello, world4",
+		"\x1b[35mDEBUG\x1b[0m Hello, world!",
+		"\x1b[34mINFO\x1b[0m Hello, world!",
+		"\x1b[33mWARN\x1b[0m Hello, world!",
+		"\x1b[31mERROR\x1b[0m Hello, world!",
+		"debug Hello, world!",
+		"info Hello, world!",
+		"warn Hello, world!",
+		"error Hello, world!",
 	}
 	_ = w.Close()
 	stdout, _ := ioutil.ReadAll(r)
@@ -99,10 +99,10 @@ func TestWithValues(t *testing.T) {
 
 	_ = w.Close()
 	stdout, _ := ioutil.ReadAll(r)
-	assert.Contains(t, string(stdout), "Hello, world!\t{\"test key\": \"test value\"}")
+	assert.Contains(t, string(stdout), "Hello, world! {\"test key\": \"test value\"}")
 }
 
-func TestDefaultLoggerWithoutTime(t *testing.T) {
+func TestGlobalLoggerWithoutTime(t *testing.T) {
 	r, w, _ := os.Pipe()
 	tmp := os.Stdout
 	defer func() {
@@ -116,7 +116,7 @@ func TestDefaultLoggerWithoutTime(t *testing.T) {
 	Info("Hello, world!")
 	_ = w.Close()
 	stdout, _ := ioutil.ReadAll(r)
-	assert.Equal(t, "\u001B[34mINFO\u001B[0m\tHello, world!\n", string(stdout))
+	assert.Equal(t, "\u001B[34mINFO\u001B[0m Hello, world!\n", string(stdout))
 }
 
 func TestLoggerFile(t *testing.T) {
