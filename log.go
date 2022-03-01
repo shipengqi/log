@@ -10,7 +10,6 @@ import (
 
 var (
 	_globalL *Logger
-	// EncodedFilename filename for logging when DisableFile is false.
 	_globalEncodedFilename string
 )
 
