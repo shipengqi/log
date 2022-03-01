@@ -39,10 +39,11 @@ func TestGlobalLogger(t *testing.T) {
 
 	opts.DisableConsoleColor = true
 	Configure(opts)
-	Debug(str)
-	Info(str)
-	Warn(str)
-	Error(str)
+
+	L().Debug(str)
+	L().Info(str)
+	L().Warn(str)
+	L().Error(str)
 
 	expected := []string{
 		"\x1b[34mINFO\x1b[0m Hello, world2",
