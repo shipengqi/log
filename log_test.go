@@ -131,8 +131,8 @@ func TestLoggerFile(t *testing.T) {
 
 	Configure(opts)
 	Info("Hello, world!")
-	assert.Equal(t, filepath.Join(tmp, "test.log"), EncodedFilename)
-	_ = os.Remove(EncodedFilename)
+	assert.Equal(t, filepath.Join(tmp, "test.log"), EncodedFilename())
+	_ = os.Remove(EncodedFilename())
 }
 
 func TestLoggerClose(t *testing.T) {
@@ -159,13 +159,13 @@ func TestLoggerClose(t *testing.T) {
 		opts.Output = "testdata/log"
 		Configure(opts)
 		Info(str)
-		Info(EncodedFilename)
-		content, err := ioutil.ReadFile(EncodedFilename)
+		Info(EncodedFilename())
+		content, err := ioutil.ReadFile(EncodedFilename())
 		assert.NoError(t, err)
 		strings.Contains(string(content), str)
 		err = Close()
 		assert.NoError(t, err)
-		_ = os.Remove(EncodedFilename)
+		_ = os.Remove(EncodedFilename())
 	})
 	t.Run("close logger with rotate log file", func(t *testing.T) {
 		str := "close logger with rotate log file"
@@ -176,13 +176,13 @@ func TestLoggerClose(t *testing.T) {
 		opts.Output = "testdata/log"
 		Configure(opts)
 		Info(str)
-		Info(EncodedFilename)
+		Info(EncodedFilename())
 		err := Close()
 		assert.NoError(t, err)
-		content, err := ioutil.ReadFile(EncodedFilename)
+		content, err := ioutil.ReadFile(EncodedFilename())
 		assert.NoError(t, err)
 		strings.Contains(string(content), str)
-		_ = os.Remove(EncodedFilename)
+		_ = os.Remove(EncodedFilename())
 	})
 }
 
