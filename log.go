@@ -27,16 +27,19 @@ func EncodedFilename() string {
 	return _globalEncodedFilename
 }
 
+// ErrSlice represents an error slice.
 type ErrSlice struct {
 	errs []error
 }
 
+// NewErrSlice returns a new ErrSlice.
 func NewErrSlice() ErrSlice {
 	return ErrSlice{
 		errs: make([]error, 0),
 	}
 }
 
+// Error implements error interface.
 func (es *ErrSlice) Error() string {
 	var b strings.Builder
 	if len(es.errs) == 0 {
@@ -53,14 +56,17 @@ func (es *ErrSlice) Error() string {
 	return b.String()
 }
 
+// Len returns the length of slice.
 func (es *ErrSlice) Len() int {
 	return len(es.errs)
 }
 
+// Append appends an error to the slice.
 func (es *ErrSlice) Append(err ...error) {
 	es.errs = append(es.errs, err...)
 }
 
+// AppendStr appends an error string to the slice.
 func (es *ErrSlice) AppendStr(err ...string) {
 	for i := range err {
 		es.errs = append(es.errs, errors.New(err[i]))
