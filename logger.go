@@ -9,6 +9,10 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
+const (
+	DefaultCallerSkip = 1
+)
+
 type Logger struct {
 	closer  io.Closer
 	log     *zap.Logger
@@ -28,13 +32,19 @@ func New(opts *Options) *Logger {
 		MessageKey:       "msg",
 		StacktraceKey:    "stack",
 		LineEnding:       zapcore.DefaultLineEnding,
-		EncodeLevel:      zapcore.LowercaseLevelEncoder,
+		EncodeLevel:      zapcore.CapitalLevelEncoder,
 		EncodeDuration:   zapcore.MillisDurationEncoder,
 		EncodeCaller:     zapcore.ShortCallerEncoder,
 		ConsoleSeparator: " ",
 	}
 	if opts.TimeEncoder != nil {
 		encoderConfig.EncodeTime = opts.TimeEncoder
+	}
+	if opts.LevelEncoder != nil {
+		encoderConfig.EncodeLevel = opts.LevelEncoder
+	}
+	if opts.CallerEncoder != nil {
+		encoderConfig.EncodeCaller = opts.CallerEncoder
 	}
 	if !opts.DisableConsole {
 		var consoleLevel Level
@@ -52,13 +62,14 @@ func New(opts *Options) *Logger {
 		if !opts.DisableConsoleCaller {
 			consoleEncCfg.CallerKey = "caller"
 		}
-		if !opts.DisableConsoleColor {
+		if !opts.DisableConsoleColor && opts.LevelEncoder == nil {
 			consoleEncCfg.EncodeLevel = zapcore.CapitalColorLevelEncoder
 		}
 		consoleLevelEnabler := zap.LevelEnablerFunc(func(lvl zapcore.Level) bool {
 			return lvl >= consoleLevel
 		})
 		consoleEncoder := zapcore.NewConsoleEncoder(consoleEncCfg)
+
 		cores = append(cores, zapcore.NewCore(consoleEncoder, zapcore.Lock(os.Stdout), consoleLevelEnabler))
 	}
 
@@ -95,7 +106,12 @@ func New(opts *Options) *Logger {
 		cores = append(cores, zapcore.NewCore(fileEncoder, syncer, fileLevelEnabler))
 	}
 	core := zapcore.NewTee(cores...)
-	unsugared := zap.New(core)
+	// zap.WithCaller(true), need set CallerKey, otherwise will not output caller info
+	// zap.AddCallerSkip(1) output the right position of caller
+	if opts.CallerSkip < 0 {
+		opts.CallerSkip = DefaultCallerSkip
+	}
+	unsugared := zap.New(core, zap.WithCaller(true), zap.AddCallerSkip(opts.CallerSkip))
 	return &Logger{
 		log:     unsugared,
 		sugared: unsugared.Sugar(),
