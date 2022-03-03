@@ -53,10 +53,10 @@ func TestGlobalLogger(t *testing.T) {
 		"\x1b[34mINFO\x1b[0m Hello, world!",
 		"\x1b[33mWARN\x1b[0m Hello, world!",
 		"\x1b[31mERROR\x1b[0m Hello, world!",
-		"debug Hello, world!",
-		"info Hello, world!",
-		"warn Hello, world!",
-		"error Hello, world!",
+		"DEBUG Hello, world!",
+		"INFO Hello, world!",
+		"WARN Hello, world!",
+		"ERROR Hello, world!",
 	}
 	_ = w.Close()
 	stdout, _ := ioutil.ReadAll(r)
