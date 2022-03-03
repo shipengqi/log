@@ -9,6 +9,10 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
+const (
+	DefaultCallerSkip = 1
+)
+
 type Logger struct {
 	closer  io.Closer
 	log     *zap.Logger
@@ -104,7 +108,10 @@ func New(opts *Options) *Logger {
 	core := zapcore.NewTee(cores...)
 	// zap.WithCaller(true), need set CallerKey, otherwise will not output caller info
 	// zap.AddCallerSkip(1) output the right position of caller
-	unsugared := zap.New(core, zap.WithCaller(true), zap.AddCallerSkip(1))
+	if opts.CallerSkip < 0 {
+		opts.CallerSkip = DefaultCallerSkip
+	}
+	unsugared := zap.New(core, zap.WithCaller(true), zap.AddCallerSkip(opts.CallerSkip))
 	return &Logger{
 		log:     unsugared,
 		sugared: unsugared.Sugar(),

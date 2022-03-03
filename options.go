@@ -35,6 +35,9 @@ type Options struct {
 	// MaxAge the max age in days to keep a logfile
 	MaxAge int `json:"max-age" mapstructure:"max-age"`
 
+	// CallerSkip the max age in days to keep a logfile
+	CallerSkip int `json:"caller-skip" mapstructure:"caller-skip"`
+
 	// ConsoleLevel sets the standard logger level
 	ConsoleLevel string `json:"console-level" mapstructure:"console-level"`
 	// FileLevel sets the file logger level.
@@ -62,6 +65,7 @@ func NewOptions() *Options {
 		ConsoleLevel:         InfoLevel.String(),
 		FilenameEncoder:      DefaultFilenameEncoder,
 		TimeEncoder:          DefaultTimeEncoder,
+		CallerSkip:           DefaultCallerSkip,
 	}
 }
 

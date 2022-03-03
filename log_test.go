@@ -162,16 +162,17 @@ func TestGlobalLogger(t *testing.T) {
 		opts.DisableConsoleCaller = false
 		opts.LevelEncoder = zapcore.LowercaseLevelEncoder
 		opts.CallerEncoder = zapcore.ShortCallerEncoder
+		opts.CallerSkip = -1
 		Configure(opts)
 		L().Debugf("Hello, %s", name+"1")
 		L().Infof("Hello, %s", name+"2")
 		L().Warnf("Hello, %s", name+"3")
 		L().Errorf("Hello, %s", name+"4")
 		expected := []string{
-			"debug log/log_test.go:166 Hello, world1",
-			"info log/log_test.go:167 Hello, world2",
-			"warn log/log_test.go:168 Hello, world3",
-			"error log/log_test.go:169 Hello, world4",
+			"debug log/log_test.go:167 Hello, world1",
+			"info log/log_test.go:168 Hello, world2",
+			"warn log/log_test.go:169 Hello, world3",
+			"error log/log_test.go:170 Hello, world4",
 		}
 		_ = w.Close()
 		stdout, _ := ioutil.ReadAll(r)
