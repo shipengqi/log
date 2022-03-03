@@ -28,13 +28,19 @@ func New(opts *Options) *Logger {
 		MessageKey:       "msg",
 		StacktraceKey:    "stack",
 		LineEnding:       zapcore.DefaultLineEnding,
-		EncodeLevel:      zapcore.LowercaseLevelEncoder,
+		EncodeLevel:      zapcore.CapitalLevelEncoder,
 		EncodeDuration:   zapcore.MillisDurationEncoder,
-		EncodeCaller:     zapcore.ShortCallerEncoder,
+		EncodeCaller:     zapcore.FullCallerEncoder,
 		ConsoleSeparator: " ",
 	}
 	if opts.TimeEncoder != nil {
 		encoderConfig.EncodeTime = opts.TimeEncoder
+	}
+	if opts.LevelEncoder != nil {
+		encoderConfig.EncodeLevel = opts.LevelEncoder
+	}
+	if opts.CallerEncoder != nil {
+		encoderConfig.EncodeCaller = opts.CallerEncoder
 	}
 	if !opts.DisableConsole {
 		var consoleLevel Level

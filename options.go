@@ -46,6 +46,10 @@ type Options struct {
 	FilenameEncoder FilenameEncoder
 	// TimeEncoder time encoder
 	TimeEncoder TimeEncoder
+	// LevelEncoder log level encoder
+	LevelEncoder LevelEncoder
+	// CallerEncoder log caller encoder
+	CallerEncoder CallerEncoder
 }
 
 // NewOptions creates an Options with default parameters.

@@ -13,6 +13,10 @@ type Level = zapcore.Level
 
 // TimeEncoder is an alias for the zapcore.TimeEncoder.
 type TimeEncoder = zapcore.TimeEncoder
+// CallerEncoder is an alias for the zapcore.CallerEncoder.
+type CallerEncoder = zapcore.CallerEncoder
+// LevelEncoder is an alias for the zapcore.LevelEncoder.
+type LevelEncoder = zapcore.LevelEncoder
 
 // Alias for zap log level.
 var (
