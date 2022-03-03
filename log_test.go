@@ -11,64 +11,180 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"go.uber.org/zap/zapcore"
 )
 
 func TestGlobalLogger(t *testing.T) {
-	r, w, _ := os.Pipe()
-	tmp := os.Stdout
-	defer func() {
-		os.Stdout = tmp
-	}()
-	os.Stdout = w
+	t.Run("Base", func(t *testing.T) {
+		r, w, _ := os.Pipe()
+		tmp := os.Stdout
+		defer func() {
+			os.Stdout = tmp
+		}()
+		os.Stdout = w
 
-	name := "world"
-	str := "Hello, world!"
-	opts := NewOptions()
-	Configure(opts)
-	Debugf("Hello, %s", name+"1")
-	Infof("Hello, %s", name+"2")
-	Warnf("Hello, %s", name+"3")
-	Errorf("Hello, %s", name+"4")
+		name := "world"
+		str := "Hello, world!"
+		opts := NewOptions()
+		Configure(opts)
+		Debugf("Hello, %s", name+"1")
+		Infof("Hello, %s", name+"2")
+		Warnf("Hello, %s", name+"3")
+		Errorf("Hello, %s", name+"4")
 
-	opts.ConsoleLevel = DebugLevel.String()
-	Configure(opts)
-	Debug(str)
-	Info(str)
-	Warn(str)
-	Error(str)
+		opts.ConsoleLevel = DebugLevel.String()
+		Configure(opts)
+		Debug(str)
+		Info(str)
+		Warn(str)
+		Error(str)
 
-	opts.DisableConsoleColor = true
-	Configure(opts)
+		opts.DisableConsoleColor = true
+		Configure(opts)
 
-	L().Debug(str)
-	L().Info(str)
-	L().Warn(str)
-	L().Error(str)
+		L().Debug(str)
+		L().Info(str)
+		L().Warn(str)
+		L().Error(str)
 
-	expected := []string{
-		"\x1b[34mINFO\x1b[0m Hello, world2",
-		"\x1b[33mWARN\x1b[0m Hello, world3",
-		"\x1b[31mERROR\x1b[0m Hello, world4",
-		"\x1b[35mDEBUG\x1b[0m Hello, world!",
-		"\x1b[34mINFO\x1b[0m Hello, world!",
-		"\x1b[33mWARN\x1b[0m Hello, world!",
-		"\x1b[31mERROR\x1b[0m Hello, world!",
-		"DEBUG Hello, world!",
-		"INFO Hello, world!",
-		"WARN Hello, world!",
-		"ERROR Hello, world!",
-	}
-	_ = w.Close()
-	stdout, _ := ioutil.ReadAll(r)
-	reader := bytes.NewReader(stdout)
-	scanner := bufio.NewScanner(reader)
-	for _, v := range expected {
-		if !scanner.Scan() {
-			break
+		expected := []string{
+			"\x1b[34mINFO\x1b[0m Hello, world2",
+			"\x1b[33mWARN\x1b[0m Hello, world3",
+			"\x1b[31mERROR\x1b[0m Hello, world4",
+			"\x1b[35mDEBUG\x1b[0m Hello, world!",
+			"\x1b[34mINFO\x1b[0m Hello, world!",
+			"\x1b[33mWARN\x1b[0m Hello, world!",
+			"\x1b[31mERROR\x1b[0m Hello, world!",
+			"DEBUG Hello, world!",
+			"INFO Hello, world!",
+			"WARN Hello, world!",
+			"ERROR Hello, world!",
 		}
-		line := scanner.Text()
-		assert.Contains(t, line, v)
-	}
+		_ = w.Close()
+		stdout, _ := ioutil.ReadAll(r)
+		reader := bytes.NewReader(stdout)
+		scanner := bufio.NewScanner(reader)
+		for _, v := range expected {
+			if !scanner.Scan() {
+				break
+			}
+			line := scanner.Text()
+			assert.Contains(t, line, v)
+		}
+	})
+
+	t.Run("With Caller", func(t *testing.T) {
+		r, w, _ := os.Pipe()
+		tmp := os.Stdout
+		defer func() {
+			os.Stdout = tmp
+		}()
+		os.Stdout = w
+
+		name := "world"
+		opts := NewOptions()
+		opts.ConsoleLevel = DebugLevel.String()
+		opts.DisableConsoleColor = true
+		opts.DisableConsoleCaller = false
+		Configure(opts)
+		L().Debugf("Hello, %s", name+"1")
+		L().Infof("Hello, %s", name+"2")
+		L().Warnf("Hello, %s", name+"3")
+		L().Errorf("Hello, %s", name+"4")
+		expected := []string{
+			"DEBUG log/log_test.go:90 Hello, world1",
+			"INFO log/log_test.go:91 Hello, world2",
+			"WARN log/log_test.go:92 Hello, world3",
+			"ERROR log/log_test.go:93 Hello, world4",
+		}
+		_ = w.Close()
+		stdout, _ := ioutil.ReadAll(r)
+		reader := bytes.NewReader(stdout)
+		scanner := bufio.NewScanner(reader)
+		for _, v := range expected {
+			if !scanner.Scan() {
+				break
+			}
+			line := scanner.Text()
+			assert.Contains(t, line, v)
+		}
+	})
+	t.Run("With Level encoder", func(t *testing.T) {
+		r, w, _ := os.Pipe()
+		tmp := os.Stdout
+		defer func() {
+			os.Stdout = tmp
+		}()
+		os.Stdout = w
+
+		name := "world"
+		opts := NewOptions()
+		opts.ConsoleLevel = DebugLevel.String()
+		opts.DisableConsoleColor = true
+		opts.DisableConsoleCaller = false
+		opts.LevelEncoder = zapcore.LowercaseLevelEncoder
+		Configure(opts)
+		L().Debugf("Hello, %s", name+"1")
+		L().Infof("Hello, %s", name+"2")
+		L().Warnf("Hello, %s", name+"3")
+		L().Errorf("Hello, %s", name+"4")
+		expected := []string{
+			"debug log/log_test.go:127 Hello, world1",
+			"info log/log_test.go:128 Hello, world2",
+			"warn log/log_test.go:129 Hello, world3",
+			"error log/log_test.go:130 Hello, world4",
+		}
+		_ = w.Close()
+		stdout, _ := ioutil.ReadAll(r)
+		reader := bytes.NewReader(stdout)
+		scanner := bufio.NewScanner(reader)
+		for _, v := range expected {
+			if !scanner.Scan() {
+				break
+			}
+			line := scanner.Text()
+			assert.Contains(t, line, v)
+		}
+	})
+
+	t.Run("With Caller encoder", func(t *testing.T) {
+		r, w, _ := os.Pipe()
+		tmp := os.Stdout
+		defer func() {
+			os.Stdout = tmp
+		}()
+		os.Stdout = w
+
+		name := "world"
+		opts := NewOptions()
+		opts.ConsoleLevel = DebugLevel.String()
+		opts.DisableConsoleColor = true
+		opts.DisableConsoleCaller = false
+		opts.LevelEncoder = zapcore.LowercaseLevelEncoder
+		opts.CallerEncoder = zapcore.ShortCallerEncoder
+		Configure(opts)
+		L().Debugf("Hello, %s", name+"1")
+		L().Infof("Hello, %s", name+"2")
+		L().Warnf("Hello, %s", name+"3")
+		L().Errorf("Hello, %s", name+"4")
+		expected := []string{
+			"debug log/log_test.go:166 Hello, world1",
+			"info log/log_test.go:167 Hello, world2",
+			"warn log/log_test.go:168 Hello, world3",
+			"error log/log_test.go:169 Hello, world4",
+		}
+		_ = w.Close()
+		stdout, _ := ioutil.ReadAll(r)
+		reader := bytes.NewReader(stdout)
+		scanner := bufio.NewScanner(reader)
+		for _, v := range expected {
+			if !scanner.Scan() {
+				break
+			}
+			line := scanner.Text()
+			assert.Contains(t, line, v)
+		}
+	})
 }
 
 func TestLoggerPanic(t *testing.T) {

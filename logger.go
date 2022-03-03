@@ -30,7 +30,7 @@ func New(opts *Options) *Logger {
 		LineEnding:       zapcore.DefaultLineEnding,
 		EncodeLevel:      zapcore.CapitalLevelEncoder,
 		EncodeDuration:   zapcore.MillisDurationEncoder,
-		EncodeCaller:     zapcore.FullCallerEncoder,
+		EncodeCaller:     zapcore.ShortCallerEncoder,
 		ConsoleSeparator: " ",
 	}
 	if opts.TimeEncoder != nil {
@@ -58,13 +58,14 @@ func New(opts *Options) *Logger {
 		if !opts.DisableConsoleCaller {
 			consoleEncCfg.CallerKey = "caller"
 		}
-		if !opts.DisableConsoleColor {
+		if !opts.DisableConsoleColor && opts.LevelEncoder == nil {
 			consoleEncCfg.EncodeLevel = zapcore.CapitalColorLevelEncoder
 		}
 		consoleLevelEnabler := zap.LevelEnablerFunc(func(lvl zapcore.Level) bool {
 			return lvl >= consoleLevel
 		})
 		consoleEncoder := zapcore.NewConsoleEncoder(consoleEncCfg)
+
 		cores = append(cores, zapcore.NewCore(consoleEncoder, zapcore.Lock(os.Stdout), consoleLevelEnabler))
 	}
 
@@ -101,7 +102,9 @@ func New(opts *Options) *Logger {
 		cores = append(cores, zapcore.NewCore(fileEncoder, syncer, fileLevelEnabler))
 	}
 	core := zapcore.NewTee(cores...)
-	unsugared := zap.New(core)
+	// zap.WithCaller(true), need set CallerKey, otherwise will not output caller info
+	// zap.AddCallerSkip(1) output the right position of caller
+	unsugared := zap.New(core, zap.WithCaller(true), zap.AddCallerSkip(1))
 	return &Logger{
 		log:     unsugared,
 		sugared: unsugared.Sugar(),
