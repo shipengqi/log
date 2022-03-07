@@ -40,7 +40,7 @@ func NewErrSlice() ErrSlice {
 }
 
 // Error implements error interface.
-func (es *ErrSlice) Error() string {
+func (es ErrSlice) Error() string {
 	var b strings.Builder
 	if len(es.errs) == 0 {
 		return ""
