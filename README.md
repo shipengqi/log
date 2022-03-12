@@ -1,7 +1,7 @@
 # log
 
 A structured logger for Go, based on [zap](https://github.com/uber-go/zap). 
-Migrated from [golib](github.com/shipengqi/golib/log).
+Migrated from [golib](github.com/shipengqi/golib).
 
 [![ci](https://github.com/shipengqi/log/actions/workflows/ci.yml/badge.svg)](https://github.com/shipengqi/log/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/shipengqi/log/branch/main/graph/badge.svg?token=CQKD0I63DQ)](https://codecov.io/gh/shipengqi/log)
