@@ -321,7 +321,7 @@ func TestErrSlice(t *testing.T) {
 }
 
 func TestStdInfoLogger(t *testing.T) {
-	logger := StdInfoLogger()
+	logger := StdLogger(InfoLevel)
 	assert.NotNil(t, logger)
 
 	var (
@@ -351,7 +351,7 @@ func TestStdInfoLogger(t *testing.T) {
 		tmp := _globalL
 		_globalL = nil
 
-		nlogger := StdInfoLogger()
+		nlogger := StdLogger(InfoLevel)
 		assert.Nil(t, nlogger)
 
 		_globalL = tmp

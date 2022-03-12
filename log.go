@@ -7,7 +7,6 @@ import (
 	"strings"
 
 	"go.uber.org/zap"
-	"go.uber.org/zap/zapcore"
 )
 
 var (
@@ -75,13 +74,13 @@ func (es *ErrSlice) AppendStr(err ...string) {
 	}
 }
 
-// StdInfoLogger returns logger of standard library which writes to supplied zap
-// logger at info level.
-func StdInfoLogger() *log.Logger {
+// StdLogger returns logger of standard library which writes to supplied zap
+// logger at the given level.
+func StdLogger(level Level) *log.Logger {
 	if _globalL == nil {
 		return nil
 	}
-	if l, err := zap.NewStdLogAt(_globalL.log, zapcore.InfoLevel); err == nil {
+	if l, err := zap.NewStdLogAt(_globalL.log, level); err == nil {
 		return l
 	}
 
