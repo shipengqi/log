@@ -7,8 +7,11 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"runtime"
+	"strconv"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/zap/zapcore"
@@ -92,10 +95,10 @@ func TestGlobalLogger(t *testing.T) {
 		L().Warnf("Hello, %s", name+"3")
 		L().Errorf("Hello, %s", name+"4")
 		expected := []string{
-			"DEBUG log/log_test.go:90 Hello, world1",
-			"INFO log/log_test.go:91 Hello, world2",
-			"WARN log/log_test.go:92 Hello, world3",
-			"ERROR log/log_test.go:93 Hello, world4",
+			"DEBUG log/log_test.go:93 Hello, world1",
+			"INFO log/log_test.go:94 Hello, world2",
+			"WARN log/log_test.go:95 Hello, world3",
+			"ERROR log/log_test.go:96 Hello, world4",
 		}
 		_ = w.Close()
 		stdout, _ := ioutil.ReadAll(r)
@@ -129,10 +132,10 @@ func TestGlobalLogger(t *testing.T) {
 		L().Warnf("Hello, %s", name+"3")
 		L().Errorf("Hello, %s", name+"4")
 		expected := []string{
-			"debug log/log_test.go:127 Hello, world1",
-			"info log/log_test.go:128 Hello, world2",
-			"warn log/log_test.go:129 Hello, world3",
-			"error log/log_test.go:130 Hello, world4",
+			"debug log/log_test.go:130 Hello, world1",
+			"info log/log_test.go:131 Hello, world2",
+			"warn log/log_test.go:132 Hello, world3",
+			"error log/log_test.go:133 Hello, world4",
 		}
 		_ = w.Close()
 		stdout, _ := ioutil.ReadAll(r)
@@ -169,10 +172,10 @@ func TestGlobalLogger(t *testing.T) {
 		L().Warnf("Hello, %s", name+"3")
 		L().Errorf("Hello, %s", name+"4")
 		expected := []string{
-			"debug log/log_test.go:167 Hello, world1",
-			"info log/log_test.go:168 Hello, world2",
-			"warn log/log_test.go:169 Hello, world3",
-			"error log/log_test.go:170 Hello, world4",
+			"debug log/log_test.go:170 Hello, world1",
+			"info log/log_test.go:171 Hello, world2",
+			"warn log/log_test.go:172 Hello, world3",
+			"error log/log_test.go:173 Hello, world4",
 		}
 		_ = w.Close()
 		stdout, _ := ioutil.ReadAll(r)
@@ -315,4 +318,56 @@ func TestErrSlice(t *testing.T) {
 
 	es.Append(errors.New("error3"))
 	assert.Equal(t, "error1 : error2 : error3", es.Error())
+}
+
+func TestStdInfoLogger(t *testing.T) {
+	logger := StdInfoLogger()
+	assert.NotNil(t, logger)
+
+	var (
+		traceStr     = "%s\n[%.3fms] [rows:%v] %s"
+		traceErrStr  = "%s %s\n[%.3fms] [rows:%v] %s"
+	)
+
+	ti := time.Now()
+	logger.Printf(traceStr, fileWithLineNum(), float64(ti.Nanosecond())/1e6, "-", "test message")
+	logger.Printf(traceErrStr, fileWithLineNum(), "terror", float64(ti.Nanosecond())/1e6, "-", "test error message")
+
+	var (
+		Reset       = "\033[0m"
+		Green       = "\033[32m"
+		Yellow      = "\033[33m"
+		BlueBold    = "\033[34;1m"
+		MagentaBold = "\033[35;1m"
+		RedBold     = "\033[31;1m"
+	)
+	traceStr = Green + "%s " + Reset + Yellow + "[%.3fms] " + BlueBold + "[rows:%v]" + Reset + " %s"
+	traceErrStr = RedBold + "%s " + MagentaBold + "%s " + Reset + Yellow + "[%.3fms] " + BlueBold + "[rows:%v]" + Reset + " %s"
+
+	logger.Printf(traceStr, fileWithLineNum(), float64(ti.Nanosecond())/1e6, "-", "color message")
+	logger.Printf(traceErrStr, fileWithLineNum(), "terror", float64(ti.Nanosecond())/1e6, "-", "color error message")
+
+	t.Run("Nil StdInfoLogger", func(t *testing.T) {
+		tmp := _globalL
+		_globalL = nil
+
+		nlogger := StdInfoLogger()
+		assert.Nil(t, nlogger)
+
+		_globalL = tmp
+	})
+}
+
+
+// fileWithLineNum return the file name and line number of the current file
+func fileWithLineNum() string {
+	for i := 4; i < 15; i++ {
+		_, file, line, ok := runtime.Caller(i)
+		if ok && !strings.HasSuffix(file, "_test.go") {
+			dir, f := filepath.Split(file)
+			return filepath.Join(filepath.Base(dir), f) + ":" + strconv.FormatInt(int64(line), 10)
+		}
+	}
+
+	return ""
 }

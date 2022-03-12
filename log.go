@@ -3,9 +3,11 @@ package log
 
 import (
 	"errors"
+	"log"
 	"strings"
 
 	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 )
 
 var (
@@ -71,6 +73,19 @@ func (es *ErrSlice) AppendStr(err ...string) {
 	for i := range err {
 		es.errs = append(es.errs, errors.New(err[i]))
 	}
+}
+
+// StdInfoLogger returns logger of standard library which writes to supplied zap
+// logger at info level.
+func StdInfoLogger() *log.Logger {
+	if _globalL == nil {
+		return nil
+	}
+	if l, err := zap.NewStdLogAt(_globalL.log, zapcore.InfoLevel); err == nil {
+		return l
+	}
+
+	return nil
 }
 
 type DebugLogger interface {
