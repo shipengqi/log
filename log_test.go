@@ -7,8 +7,11 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"runtime"
+	"strconv"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/zap/zapcore"
@@ -315,4 +318,46 @@ func TestErrSlice(t *testing.T) {
 
 	es.Append(errors.New("error3"))
 	assert.Equal(t, "error1 : error2 : error3", es.Error())
+}
+
+func TestStdInfoLogger(t *testing.T) {
+	logger := StdInfoLogger()
+	assert.NotNil(t, logger)
+
+	var (
+		traceStr     = "%s\n[%.3fms] [rows:%v] %s"
+		traceErrStr  = "%s %s\n[%.3fms] [rows:%v] %s"
+	)
+
+	ti := time.Now()
+	logger.Printf(traceStr, fileWithLineNum(), float64(ti.Nanosecond())/1e6, "-", "test message")
+	logger.Printf(traceErrStr, fileWithLineNum(), "terror", float64(ti.Nanosecond())/1e6, "-", "test error message")
+
+	var (
+		Reset       = "\033[0m"
+		Green       = "\033[32m"
+		Yellow      = "\033[33m"
+		BlueBold    = "\033[34;1m"
+		MagentaBold = "\033[35;1m"
+		RedBold     = "\033[31;1m"
+	)
+	traceStr = Green + "%s " + Reset + Yellow + "[%.3fms] " + BlueBold + "[rows:%v]" + Reset + " %s"
+	traceErrStr = RedBold + "%s " + MagentaBold + "%s " + Reset + Yellow + "[%.3fms] " + BlueBold + "[rows:%v]" + Reset + " %s"
+
+	logger.Printf(traceStr, fileWithLineNum(), float64(ti.Nanosecond())/1e6, "-", "color message")
+	logger.Printf(traceErrStr, fileWithLineNum(), "terror", float64(ti.Nanosecond())/1e6, "-", "color error message")
+}
+
+
+// fileWithLineNum return the file name and line number of the current file
+func fileWithLineNum() string {
+	for i := 4; i < 15; i++ {
+		_, file, line, ok := runtime.Caller(i)
+		if ok && !strings.HasSuffix(file, "_test.go") {
+			dir, f := filepath.Split(file)
+			return filepath.Join(filepath.Base(dir), f) + ":" + strconv.FormatInt(int64(line), 10)
+		}
+	}
+
+	return ""
 }
