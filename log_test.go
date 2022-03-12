@@ -346,6 +346,16 @@ func TestStdInfoLogger(t *testing.T) {
 
 	logger.Printf(traceStr, fileWithLineNum(), float64(ti.Nanosecond())/1e6, "-", "color message")
 	logger.Printf(traceErrStr, fileWithLineNum(), "terror", float64(ti.Nanosecond())/1e6, "-", "color error message")
+
+	t.Run("Nil StdInfoLogger", func(t *testing.T) {
+		tmp := _globalL
+		_globalL = nil
+
+		nlogger := StdInfoLogger()
+		assert.Nil(t, nlogger)
+
+		_globalL = tmp
+	})
 }
 
 
