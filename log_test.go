@@ -95,10 +95,10 @@ func TestGlobalLogger(t *testing.T) {
 		L().Warnf("Hello, %s", name+"3")
 		L().Errorf("Hello, %s", name+"4")
 		expected := []string{
-			"DEBUG log/log_test.go:90 Hello, world1",
-			"INFO log/log_test.go:91 Hello, world2",
-			"WARN log/log_test.go:92 Hello, world3",
-			"ERROR log/log_test.go:93 Hello, world4",
+			"DEBUG log/log_test.go:93 Hello, world1",
+			"INFO log/log_test.go:94 Hello, world2",
+			"WARN log/log_test.go:95 Hello, world3",
+			"ERROR log/log_test.go:96 Hello, world4",
 		}
 		_ = w.Close()
 		stdout, _ := ioutil.ReadAll(r)
@@ -132,10 +132,10 @@ func TestGlobalLogger(t *testing.T) {
 		L().Warnf("Hello, %s", name+"3")
 		L().Errorf("Hello, %s", name+"4")
 		expected := []string{
-			"debug log/log_test.go:127 Hello, world1",
-			"info log/log_test.go:128 Hello, world2",
-			"warn log/log_test.go:129 Hello, world3",
-			"error log/log_test.go:130 Hello, world4",
+			"debug log/log_test.go:130 Hello, world1",
+			"info log/log_test.go:131 Hello, world2",
+			"warn log/log_test.go:132 Hello, world3",
+			"error log/log_test.go:133 Hello, world4",
 		}
 		_ = w.Close()
 		stdout, _ := ioutil.ReadAll(r)
@@ -172,10 +172,10 @@ func TestGlobalLogger(t *testing.T) {
 		L().Warnf("Hello, %s", name+"3")
 		L().Errorf("Hello, %s", name+"4")
 		expected := []string{
-			"debug log/log_test.go:167 Hello, world1",
-			"info log/log_test.go:168 Hello, world2",
-			"warn log/log_test.go:169 Hello, world3",
-			"error log/log_test.go:170 Hello, world4",
+			"debug log/log_test.go:170 Hello, world1",
+			"info log/log_test.go:171 Hello, world2",
+			"warn log/log_test.go:172 Hello, world3",
+			"error log/log_test.go:173 Hello, world4",
 		}
 		_ = w.Close()
 		stdout, _ := ioutil.ReadAll(r)
