@@ -125,17 +125,16 @@ func TestGlobalLogger(t *testing.T) {
 		opts.ConsoleLevel = DebugLevel.String()
 		opts.DisableConsoleColor = true
 		opts.DisableConsoleCaller = false
-		opts.LevelEncoder = zapcore.LowercaseLevelEncoder
-		Configure(opts)
+		Configure(opts, WithLevelEncoder(zapcore.LowercaseLevelEncoder))
 		L().Debugf("Hello, %s", name+"1")
 		L().Infof("Hello, %s", name+"2")
 		L().Warnf("Hello, %s", name+"3")
 		L().Errorf("Hello, %s", name+"4")
 		expected := []string{
-			"debug log/log_test.go:130 Hello, world1",
-			"info log/log_test.go:131 Hello, world2",
-			"warn log/log_test.go:132 Hello, world3",
-			"error log/log_test.go:133 Hello, world4",
+			"debug log/log_test.go:129 Hello, world1",
+			"info log/log_test.go:130 Hello, world2",
+			"warn log/log_test.go:131 Hello, world3",
+			"error log/log_test.go:132 Hello, world4",
 		}
 		_ = w.Close()
 		stdout, _ := ioutil.ReadAll(r)
@@ -163,10 +162,11 @@ func TestGlobalLogger(t *testing.T) {
 		opts.ConsoleLevel = DebugLevel.String()
 		opts.DisableConsoleColor = true
 		opts.DisableConsoleCaller = false
-		opts.LevelEncoder = zapcore.LowercaseLevelEncoder
-		opts.CallerEncoder = zapcore.ShortCallerEncoder
 		opts.CallerSkip = -1
-		Configure(opts)
+		Configure(opts,
+			WithLevelEncoder(zapcore.LowercaseLevelEncoder),
+			WithCallerEncoder(zapcore.ShortCallerEncoder),
+		)
 		L().Debugf("Hello, %s", name+"1")
 		L().Infof("Hello, %s", name+"2")
 		L().Warnf("Hello, %s", name+"3")
@@ -243,14 +243,13 @@ func TestGlobalLoggerWithoutTime(t *testing.T) {
 func TestLoggerFile(t *testing.T) {
 	tmp := os.TempDir()
 	opts := NewOptions()
-	opts.FilenameEncoder = func() string {
-		return "test.log"
-	}
 	opts.DisableConsole = true
 	opts.DisableFile = false
 	opts.Output = tmp
 
-	Configure(opts)
+	Configure(opts, WithFilenameEncoder(func() string {
+		return "test.log"
+	}))
 	Info("Hello, world!")
 	assert.Equal(t, filepath.Join(tmp, "test.log"), EncodedFilename())
 	_ = os.Remove(EncodedFilename())
@@ -260,7 +259,7 @@ func TestLoggerClose(t *testing.T) {
 	t.Run("close logger without log file", func(t *testing.T) {
 		str := "close logger without log file"
 		opts := NewOptions()
-		Configure(opts)
+		Configure(opts, WithTimeEncoder(DefaultTimeEncoder))
 		defer func() {
 			if err := recover(); err != nil {
 				assert.Equal(t, err, str)
@@ -321,6 +320,10 @@ func TestErrSlice(t *testing.T) {
 }
 
 func TestStdInfoLogger(t *testing.T) {
+	opts := NewOptions()
+	opts.DisableFile = true
+	opts.DisableConsole = false
+	Configure(opts)
 	logger := StdLogger(InfoLevel)
 	assert.NotNil(t, logger)
 

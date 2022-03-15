@@ -62,14 +62,22 @@ func (es *ErrSlice) Len() int {
 	return len(es.errs)
 }
 
-// Append appends an error to the slice.
+// Append appends an error to the slice, nil error will be ignored.
 func (es *ErrSlice) Append(err ...error) {
-	es.errs = append(es.errs, err...)
+	for i := range err {
+		if err[i] == nil {
+			continue
+		}
+		es.errs = append(es.errs, err[i])
+	}
 }
 
-// AppendStr appends an error string to the slice.
+// AppendStr appends an error string to the slice, empty string will be ignored.
 func (es *ErrSlice) AppendStr(err ...string) {
 	for i := range err {
+		if len(err[i]) == 0 {
+			continue
+		}
 		es.errs = append(es.errs, errors.New(err[i]))
 	}
 }
@@ -137,8 +145,8 @@ type Interface interface {
 }
 
 // Configure sets up the global logger.
-func Configure(opts *Options) {
-	l := New(opts)
+func Configure(opts *Options, encoders ...Encoder) {
+	l := New(opts, encoders...)
 	_globalL = l
 	zap.RedirectStdLog(_globalL.log)
 }
