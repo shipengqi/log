@@ -36,25 +36,8 @@ func New(opts *Options, encoders ...Encoder) *Logger {
 	l.withEncoders(encoders...)
 	var cores []zapcore.Core
 
-	encoderConfig := zapcore.EncoderConfig{
-		NameKey:          "logger",
-		MessageKey:       "msg",
-		StacktraceKey:    "stack",
-		LineEnding:       zapcore.DefaultLineEnding,
-		EncodeLevel:      zapcore.CapitalLevelEncoder,
-		EncodeDuration:   zapcore.MillisDurationEncoder,
-		EncodeCaller:     zapcore.ShortCallerEncoder,
-		ConsoleSeparator: " ",
-	}
-	if l.timeEncoder != nil {
-		encoderConfig.EncodeTime = l.timeEncoder
-	}
-	if l.levelEncoder != nil {
-		encoderConfig.EncodeLevel = l.levelEncoder
-	}
-	if l.callerEncoder != nil {
-		encoderConfig.EncodeCaller = l.callerEncoder
-	}
+	encoderConfig := l.getEncoderConfig()
+
 	if !opts.DisableConsole {
 		var consoleLevel Level
 		err := consoleLevel.Set(strings.ToLower(opts.ConsoleLevel))
@@ -295,4 +278,27 @@ func (l *Logger) Close() error {
 		return l.closer.Close()
 	}
 	return nil
+}
+
+func (l *Logger) getEncoderConfig() zapcore.EncoderConfig {
+	encoderConfig := zapcore.EncoderConfig{
+		NameKey:          "logger",
+		MessageKey:       "msg",
+		StacktraceKey:    "stack",
+		LineEnding:       zapcore.DefaultLineEnding,
+		EncodeLevel:      zapcore.CapitalLevelEncoder,
+		EncodeDuration:   zapcore.MillisDurationEncoder,
+		EncodeCaller:     zapcore.ShortCallerEncoder,
+		ConsoleSeparator: " ",
+	}
+	if l.timeEncoder != nil {
+		encoderConfig.EncodeTime = l.timeEncoder
+	}
+	if l.levelEncoder != nil {
+		encoderConfig.EncodeLevel = l.levelEncoder
+	}
+	if l.callerEncoder != nil {
+		encoderConfig.EncodeCaller = l.callerEncoder
+	}
+	return encoderConfig
 }
