@@ -45,14 +45,6 @@ type Options struct {
 
 	// Output directory for logging when DisableFile is false
 	Output string `json:"output" mapstructure:"output"`
-	// FilenameEncoder log filename encoder
-	FilenameEncoder FilenameEncoder
-	// TimeEncoder time encoder
-	TimeEncoder TimeEncoder
-	// LevelEncoder log level encoder
-	LevelEncoder LevelEncoder
-	// CallerEncoder log caller encoder
-	CallerEncoder CallerEncoder
 }
 
 // NewOptions creates an Options with default parameters.
@@ -63,8 +55,6 @@ func NewOptions() *Options {
 		DisableConsoleCaller: true,
 		DisableFileCaller:    true,
 		ConsoleLevel:         InfoLevel.String(),
-		FilenameEncoder:      DefaultFilenameEncoder,
-		TimeEncoder:          DefaultTimeEncoder,
 		CallerSkip:           DefaultCallerSkip,
 	}
 }
