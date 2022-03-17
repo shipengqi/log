@@ -307,16 +307,32 @@ func TestLoggerClose(t *testing.T) {
 }
 
 func TestErrSlice(t *testing.T) {
-	es := NewErrSlice()
-	assert.Equal(t, "", es.Error())
-	es.Append(errors.New("error1"))
-	assert.Equal(t, "error1", es.Error())
+	t.Run("Generic ErrSlice", func(t *testing.T) {
+		es := NewErrSlice()
+		assert.Equal(t, "", es.Error())
+		es.Append(errors.New("error1"))
+		assert.Equal(t, "error1", es.Error())
 
-	es.AppendStr("error2")
-	assert.Equal(t, "error1 : error2", es.Error())
+		es.AppendStr("error2")
+		assert.Equal(t, "error1 : error2", es.Error())
 
-	es.Append(errors.New("error3"))
-	assert.Equal(t, "error1 : error2 : error3", es.Error())
+		es.Append(errors.New("error3"))
+		assert.Equal(t, "error1 : error2 : error3", es.Error())
+	})
+
+	t.Run("Append ErrSlice", func(t *testing.T) {
+		es := NewErrSlice()
+		es.Append(NewErrSlice())
+		assert.Equal(t, 0, es.Len())
+
+		es.Append(errors.New("error1"))
+		assert.Equal(t, 1, es.Len())
+
+		es2 := NewErrSlice()
+		es2.Append(errors.New("error1"))
+		es.Append(es2)
+		assert.Equal(t, 2, es.Len())
+	})
 }
 
 func TestStdInfoLogger(t *testing.T) {

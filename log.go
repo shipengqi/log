@@ -68,6 +68,11 @@ func (es *ErrSlice) Append(err ...error) {
 		if err[i] == nil {
 			continue
 		}
+		if v, ok := err[i].(ErrSlice); ok {
+			if v.Len() == 0 {
+				continue
+			}
+		}
 		es.errs = append(es.errs, err[i])
 	}
 }
