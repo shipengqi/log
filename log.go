@@ -28,6 +28,7 @@ func EncodedFilename() string {
 	return _globalEncodedFilename
 }
 
+
 // ErrSlice represents an error slice.
 type ErrSlice struct {
 	errs []error
@@ -69,6 +70,11 @@ func (es *ErrSlice) Append(err ...error) {
 			continue
 		}
 		if v, ok := err[i].(ErrSlice); ok {
+			if v.Len() == 0 {
+				continue
+			}
+		}
+		if v, ok := err[i].(*ErrSlice); ok {
 			if v.Len() == 0 {
 				continue
 			}

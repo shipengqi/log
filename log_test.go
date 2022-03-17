@@ -333,6 +333,14 @@ func TestErrSlice(t *testing.T) {
 		es.Append(es2)
 		assert.Equal(t, 2, es.Len())
 	})
+
+	t.Run("Append *ErrSlice", func(t *testing.T) {
+		es := NewErrSlice()
+		es2 := NewErrSlice()
+		// es2.Append(errors.New("error1"))
+		es.Append(&es2)
+		assert.Equal(t, 0, es.Len())
+	})
 }
 
 func TestStdInfoLogger(t *testing.T) {
