@@ -11,7 +11,7 @@ Migrated from [golib](https://github.com/shipengqi/golib).
 ## Quick Start
 
 ```go
-opts := &log.Newoptions()
+opts := log.Newoptions()
 log.Configure(opts)
 defer func() {
     _ = log.Close()
