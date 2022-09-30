@@ -9,10 +9,8 @@ import (
 	"go.uber.org/zap"
 )
 
-var (
-	_globalL *Logger
-	_globalEncodedFilename string
-)
+var _globalL *Logger
+
 
 func init() {
 	_globalL = New(NewOptions())
@@ -25,7 +23,7 @@ func L() *Logger {
 
 // EncodedFilename returns the filename for logging when DisableFile is false.
 func EncodedFilename() string {
-	return _globalEncodedFilename
+	return _globalL.encodedFilename
 }
 
 

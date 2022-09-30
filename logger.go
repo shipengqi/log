@@ -21,6 +21,7 @@ type Logger struct {
 	timeEncoder     TimeEncoder
 	levelEncoder    LevelEncoder
 	callerEncoder   CallerEncoder
+	encodedFilename string
 }
 
 // New creates a new Logger.
@@ -66,8 +67,9 @@ func New(opts *Options, encoders ...Encoder) *Logger {
 	}
 
 	var (
-		syncer zapcore.WriteSyncer
-		closer io.Closer
+		syncer          zapcore.WriteSyncer
+		closer          io.Closer
+		encodedFilename string
 	)
 	if !opts.DisableFile {
 		var fileLevel Level
@@ -94,7 +96,7 @@ func New(opts *Options, encoders ...Encoder) *Logger {
 		fileLevelEnabler := zap.LevelEnablerFunc(func(lvl zapcore.Level) bool {
 			return lvl >= fileLevel
 		})
-		syncer, closer = rollingFileEncoder(opts, l.filenameEncoder)
+		syncer, closer, encodedFilename = rollingFileEncoder(opts, l.filenameEncoder)
 		cores = append(cores, zapcore.NewCore(fileEncoder, syncer, fileLevelEnabler))
 	}
 	core := zapcore.NewTee(cores...)
@@ -105,9 +107,10 @@ func New(opts *Options, encoders ...Encoder) *Logger {
 	}
 	unsugared := zap.New(core, zap.WithCaller(true), zap.AddCallerSkip(opts.CallerSkip))
 	return &Logger{
-		log:     unsugared,
-		sugared: unsugared.Sugar(),
-		closer:  closer,
+		log:             unsugared,
+		sugared:         unsugared.Sugar(),
+		closer:          closer,
+		encodedFilename: encodedFilename,
 	}
 }
 
@@ -278,6 +281,10 @@ func (l *Logger) Close() error {
 		return l.closer.Close()
 	}
 	return nil
+}
+
+func (l *Logger) EncodedFilename() string {
+	return l.encodedFilename
 }
 
 func (l *Logger) getEncoderConfig() zapcore.EncoderConfig {
