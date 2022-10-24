@@ -1,6 +1,7 @@
 package log
 
 import (
+	"fmt"
 	"io"
 	"os"
 	"strings"
@@ -199,6 +200,21 @@ func (l *Logger) Fatalf(template string, args ...interface{}) {
 
 func (l *Logger) Fatal(msg string, keysAndValues ...interface{}) {
 	l.sugared.Fatalw(msg, keysAndValues...)
+}
+
+// Print logs a message at level Print.
+func (l *Logger) Print(args ...interface{}) {
+	l.log.Info(fmt.Sprint(args...))
+}
+
+// Println logs a message at level Print.
+func (l *Logger) Println(args ...interface{}) {
+	l.log.Info(fmt.Sprint(args...))
+}
+
+// Printf logs a message at level Print.
+func (l *Logger) Printf(format string, args ...interface{}) {
+	l.log.Info(fmt.Sprintf(format, args...))
 }
 
 func (l *Logger) AtLevelt(level Level, msg string, fields ...Field) {

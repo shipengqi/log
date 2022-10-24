@@ -250,6 +250,21 @@ func Fatal(msg string, keysAndValues ...interface{}) {
 	_globalL.Fatal(msg, keysAndValues...)
 }
 
+// Print logs a message at level Print.
+func Print(args ...interface{}) {
+	_globalL.Print(args...)
+}
+
+// Println logs a message at level Print.
+func Println(args ...interface{}) {
+	_globalL.Println(args...)
+}
+
+// Printf logs a message at level Print.
+func Printf(format string, args ...interface{}) {
+	_globalL.Printf(format, args...)
+}
+
 // AtLevelt logs a message at Level.
 func AtLevelt(level Level, msg string, fields ...Field) {
 	_globalL.AtLevelt(level, msg, fields...)
