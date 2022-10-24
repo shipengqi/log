@@ -3,7 +3,6 @@ package log
 import (
 	"bufio"
 	"bytes"
-	"errors"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -30,10 +29,15 @@ func TestGlobalLogger(t *testing.T) {
 		str := "Hello, world!"
 		opts := NewOptions()
 		Configure(opts)
+
+		sugared := SugaredL()
+		assert.NotNil(t, sugared)
+
 		Debugf("Hello, %s", name+"1")
 		Infof("Hello, %s", name+"2")
 		Warnf("Hello, %s", name+"3")
 		Errorf("Hello, %s", name+"4")
+		Printf("Hello, %s", name+"5")
 
 		opts.ConsoleLevel = DebugLevel.String()
 		Configure(opts)
@@ -41,6 +45,7 @@ func TestGlobalLogger(t *testing.T) {
 		Info(str)
 		Warn(str)
 		Error(str)
+		Print(str)
 
 		opts.DisableConsoleColor = true
 		Configure(opts)
@@ -49,19 +54,23 @@ func TestGlobalLogger(t *testing.T) {
 		L().Info(str)
 		L().Warn(str)
 		L().Error(str)
+		L().Println(str)
 
 		expected := []string{
 			"\x1b[34mINFO\x1b[0m Hello, world2",
 			"\x1b[33mWARN\x1b[0m Hello, world3",
 			"\x1b[31mERROR\x1b[0m Hello, world4",
+			"\x1b[34mINFO\x1b[0m Hello, world5",
 			"\x1b[35mDEBUG\x1b[0m Hello, world!",
 			"\x1b[34mINFO\x1b[0m Hello, world!",
 			"\x1b[33mWARN\x1b[0m Hello, world!",
 			"\x1b[31mERROR\x1b[0m Hello, world!",
+			"\x1b[34mINFO\x1b[0m Hello, world!",
 			"DEBUG Hello, world!",
 			"INFO Hello, world!",
 			"WARN Hello, world!",
 			"ERROR Hello, world!",
+			"INFO Hello, world!",
 		}
 		_ = w.Close()
 		stdout, _ := ioutil.ReadAll(r)
@@ -95,10 +104,10 @@ func TestGlobalLogger(t *testing.T) {
 		L().Warnf("Hello, %s", name+"3")
 		L().Errorf("Hello, %s", name+"4")
 		expected := []string{
-			"DEBUG log/log_test.go:93 Hello, world1",
-			"INFO log/log_test.go:94 Hello, world2",
-			"WARN log/log_test.go:95 Hello, world3",
-			"ERROR log/log_test.go:96 Hello, world4",
+			"DEBUG log/log_test.go:102 Hello, world1",
+			"INFO log/log_test.go:103 Hello, world2",
+			"WARN log/log_test.go:104 Hello, world3",
+			"ERROR log/log_test.go:105 Hello, world4",
 		}
 		_ = w.Close()
 		stdout, _ := ioutil.ReadAll(r)
@@ -131,10 +140,10 @@ func TestGlobalLogger(t *testing.T) {
 		L().Warnf("Hello, %s", name+"3")
 		L().Errorf("Hello, %s", name+"4")
 		expected := []string{
-			"debug log/log_test.go:129 Hello, world1",
-			"info log/log_test.go:130 Hello, world2",
-			"warn log/log_test.go:131 Hello, world3",
-			"error log/log_test.go:132 Hello, world4",
+			"debug log/log_test.go:138 Hello, world1",
+			"info log/log_test.go:139 Hello, world2",
+			"warn log/log_test.go:140 Hello, world3",
+			"error log/log_test.go:141 Hello, world4",
 		}
 		_ = w.Close()
 		stdout, _ := ioutil.ReadAll(r)
@@ -172,10 +181,10 @@ func TestGlobalLogger(t *testing.T) {
 		L().Warnf("Hello, %s", name+"3")
 		L().Errorf("Hello, %s", name+"4")
 		expected := []string{
-			"debug log/log_test.go:170 Hello, world1",
-			"info log/log_test.go:171 Hello, world2",
-			"warn log/log_test.go:172 Hello, world3",
-			"error log/log_test.go:173 Hello, world4",
+			"debug log/log_test.go:179 Hello, world1",
+			"info log/log_test.go:180 Hello, world2",
+			"warn log/log_test.go:181 Hello, world3",
+			"error log/log_test.go:182 Hello, world4",
 		}
 		_ = w.Close()
 		stdout, _ := ioutil.ReadAll(r)
@@ -306,43 +315,6 @@ func TestLoggerClose(t *testing.T) {
 	})
 }
 
-func TestErrSlice(t *testing.T) {
-	t.Run("Generic ErrSlice", func(t *testing.T) {
-		es := NewErrSlice()
-		assert.Equal(t, "", es.Error())
-		es.Append(errors.New("error1"))
-		assert.Equal(t, "error1", es.Error())
-
-		es.AppendStr("error2")
-		assert.Equal(t, "error1 : error2", es.Error())
-
-		es.Append(errors.New("error3"))
-		assert.Equal(t, "error1 : error2 : error3", es.Error())
-	})
-
-	t.Run("Append ErrSlice", func(t *testing.T) {
-		es := NewErrSlice()
-		es.Append(NewErrSlice())
-		assert.Equal(t, 0, es.Len())
-
-		es.Append(errors.New("error1"))
-		assert.Equal(t, 1, es.Len())
-
-		es2 := NewErrSlice()
-		es2.Append(errors.New("error1"))
-		es.Append(es2)
-		assert.Equal(t, 2, es.Len())
-	})
-
-	t.Run("Append *ErrSlice", func(t *testing.T) {
-		es := NewErrSlice()
-		es2 := NewErrSlice()
-		// es2.Append(errors.New("error1"))
-		es.Append(&es2)
-		assert.Equal(t, 0, es.Len())
-	})
-}
-
 func TestStdInfoLogger(t *testing.T) {
 	opts := NewOptions()
 	opts.DisableFile = true
@@ -384,7 +356,6 @@ func TestStdInfoLogger(t *testing.T) {
 		_globalL = tmp
 	})
 }
-
 
 // fileWithLineNum return the file name and line number of the current file
 func fileWithLineNum() string {
