@@ -77,7 +77,8 @@ func (o *Options) Validate() []error {
 	}
 
 	if o.DisableConsole && o.DisableFile {
-		errs = append(errs, errors.New("no enabled logger, one or more of (DisableConsole, DisableFile) must be set to false"))
+		errs = append(errs, errors.New("no enabled logger, one or more of " +
+			"(DisableConsole, DisableFile) must be set to false"))
 	}
 
 	if !o.DisableFile && o.Output == "" {
