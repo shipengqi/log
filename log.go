@@ -2,9 +2,7 @@
 package log
 
 import (
-	"errors"
 	"log"
-	"strings"
 
 	"go.uber.org/zap"
 )
@@ -23,72 +21,12 @@ func L() *Logger {
 
 // EncodedFilename returns the filename for logging when DisableFile is false.
 func EncodedFilename() string {
-	return _globalL.encodedFilename
+	return _globalL.EncodedFilename()
 }
 
-
-// ErrSlice represents an error slice.
-type ErrSlice struct {
-	errs []error
-}
-
-// NewErrSlice returns a new ErrSlice.
-func NewErrSlice() ErrSlice {
-	return ErrSlice{
-		errs: make([]error, 0),
-	}
-}
-
-// Error implements error interface.
-func (es ErrSlice) Error() string {
-	var b strings.Builder
-	if len(es.errs) == 0 {
-		return ""
-	}
-
-	b.WriteString(es.errs[0].Error())
-
-	for i := 1; i < len(es.errs); i++ {
-		b.WriteString(" : ")
-		b.WriteString(es.errs[i].Error())
-	}
-
-	return b.String()
-}
-
-// Len returns the length of slice.
-func (es *ErrSlice) Len() int {
-	return len(es.errs)
-}
-
-// Append appends an error to the slice, nil error will be ignored.
-func (es *ErrSlice) Append(err ...error) {
-	for i := range err {
-		if err[i] == nil {
-			continue
-		}
-		if v, ok := err[i].(ErrSlice); ok {
-			if v.Len() == 0 {
-				continue
-			}
-		}
-		if v, ok := err[i].(*ErrSlice); ok {
-			if v.Len() == 0 {
-				continue
-			}
-		}
-		es.errs = append(es.errs, err[i])
-	}
-}
-
-// AppendStr appends an error string to the slice, empty string will be ignored.
-func (es *ErrSlice) AppendStr(err ...string) {
-	for i := range err {
-		if len(err[i]) == 0 {
-			continue
-		}
-		es.errs = append(es.errs, errors.New(err[i]))
-	}
+// SugaredL returns global sugared logger.
+func SugaredL() *zap.SugaredLogger {
+	return _globalL.Sugared()
 }
 
 // StdLogger returns logger of standard library which writes to supplied zap

@@ -3,6 +3,7 @@ package log
 import (
 	"testing"
 
+	"github.com/shipengqi/errors"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -12,7 +13,7 @@ func Test_Default_Options_Validate(t *testing.T) {
 		errs := opts.Validate()
 		expected := 0
 
-		assert.Equal(t, expected, errs.Len())
+		assert.Equal(t, expected, len(errs))
 	})
 
 	t.Run("output error", func(t *testing.T) {
@@ -20,8 +21,8 @@ func Test_Default_Options_Validate(t *testing.T) {
 		opts.DisableFile = false
 		errs := opts.Validate()
 
-		assert.Equal(t, 1, errs.Len())
-		assert.Equal(t, "no log output", errs.Error())
+		assert.Equal(t, 1, len(errs))
+		assert.Equal(t, "no log output, 'Output' must be set", errors.NewAggregate(errs).Error())
 	})
 
 	t.Run("no enabled logger error", func(t *testing.T) {
@@ -29,8 +30,8 @@ func Test_Default_Options_Validate(t *testing.T) {
 		opts.DisableConsole = true
 		errs := opts.Validate()
 
-		assert.Equal(t, 1, errs.Len())
-		assert.Equal(t, "no enabled logger", errs.Error())
+		assert.Equal(t, 1, len(errs))
+		assert.Equal(t, "no enabled logger, one or more of (DisableConsole, DisableFile) must be set to false", errors.NewAggregate(errs).Error())
 	})
 
 	t.Run("unrecognized level error", func(t *testing.T) {
@@ -39,7 +40,7 @@ func Test_Default_Options_Validate(t *testing.T) {
 		opts.FileLevel = "errorlevel"
 		errs := opts.Validate()
 
-		assert.Equal(t, 2, errs.Len())
-		assert.Equal(t, "unrecognized level: \"errorlevel\" : unrecognized level: \"errorlevel\"", errs.Error())
+		assert.Equal(t, 2, len(errs))
+		assert.Equal(t, "unrecognized level: \"errorlevel\"", errors.NewAggregate(errs).Error())
 	})
 }

@@ -6,6 +6,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/shipengqi/errors"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
@@ -27,8 +28,8 @@ type Logger struct {
 
 // New creates a new Logger.
 func New(opts *Options, encoders ...Encoder) *Logger {
-	if errs := opts.Validate(); errs.Len() > 0 {
-		panic(errs)
+	if errs := opts.Validate(); len(errs) > 0 {
+		panic(errors.NewAggregate(errs))
 	}
 
 	l := &Logger{}
@@ -277,6 +278,13 @@ func (l *Logger) AtLevelf(level Level, msg string, args ...interface{}) {
 	}
 }
 
+// Sugared returns sugared logger.
+func (l *Logger) Sugared() *zap.SugaredLogger {
+	return l.sugared
+}
+
+// WithValues creates a child logger and adds some Field of
+// context to this logger.
 func (l *Logger) WithValues(fields ...Field) *Logger {
 	newl := l.log.With(fields...)
 	return &Logger{
@@ -285,10 +293,13 @@ func (l *Logger) WithValues(fields ...Field) *Logger {
 	}
 }
 
+// Flush calls the underlying Core's Sync method, flushing any buffered
+// log entries. Applications should take care to call Sync before exiting.
 func (l *Logger) Flush() error {
 	return l.log.Sync()
 }
 
+// Close implements io.Closer, and closes the current logfile of default logger.
 func (l *Logger) Close() error {
 	// https://github.com/uber-go/zap/issues/772
 	_ = l.Flush()
