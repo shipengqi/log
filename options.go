@@ -38,7 +38,7 @@ type Options struct {
 	// MaxAge the max age in days to keep a logfile
 	MaxAge int `json:"max-age" mapstructure:"max-age"`
 
-	// CallerSkip the max age in days to keep a logfile
+	// CallerSkip increases the number of callers skipped by caller annotation
 	CallerSkip int `json:"caller-skip" mapstructure:"caller-skip"`
 
 	// ConsoleLevel sets the standard logger level
@@ -79,10 +79,10 @@ func (o *Options) AddFlags(fs *pflag.FlagSet) {
 	fs.BoolVar(&o.DisableConsoleTime, "log.disable-console-time", o.DisableConsoleTime,
 		"Whether to add a time.")
 
-	fs.BoolVar(&o.DisableConsoleLevel, "log.disable-console-time", o.DisableConsoleLevel,
+	fs.BoolVar(&o.DisableConsoleLevel, "log.disable-console-level", o.DisableConsoleLevel,
 		"Whether to add a level.")
 
-	fs.BoolVar(&o.DisableConsoleCaller, "log.disable-console-time", o.DisableConsoleCaller,
+	fs.BoolVar(&o.DisableConsoleCaller, "log.disable-console-caller", o.DisableConsoleCaller,
 		"Whether to add caller info.")
 
 	fs.BoolVar(&o.DisableFile, "log.disable-file", o.DisableFile,
@@ -97,7 +97,7 @@ func (o *Options) AddFlags(fs *pflag.FlagSet) {
 	fs.BoolVar(&o.DisableFileCaller, "log.disable-file-caller", o.DisableFileCaller,
 		"Whether to add caller info.")
 
-	fs.BoolVar(&o.DisableRotate, "log.disable-file-caller", o.DisableRotate,
+	fs.BoolVar(&o.DisableRotate, "log.disable-rotate", o.DisableRotate,
 		"Whether to enable log file rotate.")
 
 	fs.IntVar(&o.MaxSize, "log.max-size", o.MaxSize,
@@ -106,7 +106,7 @@ func (o *Options) AddFlags(fs *pflag.FlagSet) {
 	fs.IntVar(&o.MaxBackups, "log.max-backups", o.MaxBackups,
 		"Sets the max number of rolled files to keep.")
 
-	fs.IntVar(&o.MaxAge, "log.max-backups", o.MaxAge,
+	fs.IntVar(&o.MaxAge, "log.max-age", o.MaxAge,
 		"Sets the max age in days to keep a logfile.")
 
 	fs.StringVar(&o.Output, "log.output", o.Output,
