@@ -3,8 +3,9 @@
 A structured logger for Go, based on [zap](https://github.com/uber-go/zap). 
 Migrated from [golib](https://github.com/shipengqi/golib).
 
-[![ci](https://github.com/shipengqi/log/actions/workflows/ci.yml/badge.svg)](https://github.com/shipengqi/log/actions/workflows/ci.yml)
+[![test](https://github.com/shipengqi/log/actions/workflows/test.yaml/badge.svg)](https://github.com/shipengqi/log/actions/workflows/test.yaml)
 [![codecov](https://codecov.io/gh/shipengqi/log/branch/main/graph/badge.svg?token=CQKD0I63DQ)](https://codecov.io/gh/shipengqi/log)
+[![Go Report Card](https://goreportcard.com/badge/github.com/shipengqi/log)](https://goreportcard.com/report/github.com/shipengqi/log)
 [![release](https://img.shields.io/github/release/shipengqi/log.svg)](https://github.com/shipengqi/log/releases)
 [![license](https://img.shields.io/github/license/shipengqi/log)](https://github.com/shipengqi/log/blob/main/LICENSE)
 
@@ -12,6 +13,12 @@ Migrated from [golib](https://github.com/shipengqi/golib).
 
 ```go
 opts := log.Newoptions()
+errs := opts.Validate()
+if len(errs) > 0 {
+	// handle errors
+	return
+}
+
 log.Configure(opts)
 defer func() {
     _ = log.Close()
@@ -36,3 +43,9 @@ log.Errort("error message", log.Any("key4", "any"))
 ## Documentation
 
 You can find the docs at [go docs](https://pkg.go.dev/github.com/shipengqi/log).
+
+## 🔋 JetBrains OS licenses
+
+`log` had been being developed with **GoLand** under the **free JetBrains Open Source license(s)** granted by JetBrains s.r.o., hence I would like to express my thanks here.
+
+<a href="https://www.jetbrains.com/?from=log" target="_blank"><img src="https://resources.jetbrains.com/storage/products/company/brand/logos/jb_beam.svg" alt="JetBrains Logo (Main) logo." width="250" align="middle"></a>
