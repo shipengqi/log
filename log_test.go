@@ -3,7 +3,7 @@ package log
 import (
 	"bufio"
 	"bytes"
-	"io/ioutil"
+	"io"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -73,7 +73,7 @@ func TestGlobalLogger(t *testing.T) {
 			"INFO Hello, world!",
 		}
 		_ = w.Close()
-		stdout, _ := ioutil.ReadAll(r)
+		stdout, _ := io.ReadAll(r)
 		reader := bytes.NewReader(stdout)
 		scanner := bufio.NewScanner(reader)
 		for _, v := range expected {
@@ -110,7 +110,7 @@ func TestGlobalLogger(t *testing.T) {
 			"ERROR log/log_test.go:105 Hello, world4",
 		}
 		_ = w.Close()
-		stdout, _ := ioutil.ReadAll(r)
+		stdout, _ := io.ReadAll(r)
 		reader := bytes.NewReader(stdout)
 		scanner := bufio.NewScanner(reader)
 		for _, v := range expected {
@@ -146,7 +146,7 @@ func TestGlobalLogger(t *testing.T) {
 			"error log/log_test.go:141 Hello, world4",
 		}
 		_ = w.Close()
-		stdout, _ := ioutil.ReadAll(r)
+		stdout, _ := io.ReadAll(r)
 		reader := bytes.NewReader(stdout)
 		scanner := bufio.NewScanner(reader)
 		for _, v := range expected {
@@ -187,7 +187,7 @@ func TestGlobalLogger(t *testing.T) {
 			"error log/log_test.go:182 Hello, world4",
 		}
 		_ = w.Close()
-		stdout, _ := ioutil.ReadAll(r)
+		stdout, _ := io.ReadAll(r)
 		reader := bytes.NewReader(stdout)
 		scanner := bufio.NewScanner(reader)
 		for _, v := range expected {
@@ -228,7 +228,7 @@ func TestWithValues(t *testing.T) {
 	logger.Info("Hello, world!")
 
 	_ = w.Close()
-	stdout, _ := ioutil.ReadAll(r)
+	stdout, _ := io.ReadAll(r)
 	assert.Contains(t, string(stdout), "Hello, world! {\"test key\": \"test value\"}")
 }
 
@@ -245,7 +245,7 @@ func TestGlobalLoggerWithoutTime(t *testing.T) {
 
 	Info("Hello, world!")
 	_ = w.Close()
-	stdout, _ := ioutil.ReadAll(r)
+	stdout, _ := io.ReadAll(r)
 	assert.Equal(t, "\u001B[34mINFO\u001B[0m Hello, world!\n", string(stdout))
 }
 
@@ -289,7 +289,7 @@ func TestLoggerClose(t *testing.T) {
 		Configure(opts)
 		Info(str)
 		Info(EncodedFilename())
-		content, err := ioutil.ReadFile(EncodedFilename())
+		content, err := os.ReadFile(EncodedFilename())
 		assert.NoError(t, err)
 		strings.Contains(string(content), str)
 		err = Close()
@@ -308,7 +308,7 @@ func TestLoggerClose(t *testing.T) {
 		Info(EncodedFilename())
 		err := Close()
 		assert.NoError(t, err)
-		content, err := ioutil.ReadFile(EncodedFilename())
+		content, err := os.ReadFile(EncodedFilename())
 		assert.NoError(t, err)
 		strings.Contains(string(content), str)
 		_ = os.Remove(EncodedFilename())
@@ -324,8 +324,8 @@ func TestStdInfoLogger(t *testing.T) {
 	assert.NotNil(t, logger)
 
 	var (
-		traceStr     = "%s\n[%.3fms] [rows:%v] %s"
-		traceErrStr  = "%s %s\n[%.3fms] [rows:%v] %s"
+		traceStr    = "%s\n[%.3fms] [rows:%v] %s"
+		traceErrStr = "%s %s\n[%.3fms] [rows:%v] %s"
 	)
 
 	ti := time.Now()

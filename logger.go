@@ -6,7 +6,6 @@ import (
 	"os"
 	"strings"
 
-	"github.com/shipengqi/errors"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
@@ -28,10 +27,6 @@ type Logger struct {
 
 // New creates a new Logger.
 func New(opts *Options, encoders ...Encoder) *Logger {
-	if errs := opts.Validate(); len(errs) > 0 {
-		panic(errors.NewAggregate(errs))
-	}
-
 	l := &Logger{}
 	if !opts.DisableFile && len(opts.Output) > 0 {
 		l.filenameEncoder = DefaultFilenameEncoder

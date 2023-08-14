@@ -9,7 +9,6 @@ import (
 
 var _globalL *Logger
 
-
 func init() {
 	_globalL = New(NewOptions())
 }

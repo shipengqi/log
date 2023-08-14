@@ -23,6 +23,7 @@ type Options struct {
 	// DisableFile whether to log to file
 	DisableFile bool `json:"disable-file" mapstructure:"disable-file"`
 	// DisableFileJson whether to enable json format for log file
+	//nolint:revive
 	DisableFileJson bool `json:"disable-file-json" mapstructure:"disable-file-json"`
 	// DisableFileTime whether to add a time
 	DisableFileTime bool `json:"disable-file-time" mapstructure:"disable-file-time"`
