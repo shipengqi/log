@@ -141,7 +141,7 @@ func TestGlobalLogger(t *testing.T) {
 		L().Warnf("Hello, %s", name+"3")
 		L().Errorf("Hello, %s", name+"4")
 		expected := []string{
-			"debug log/log_test.go:1389Hello, world1",
+			"debug log/log_test.go:139Hello, world1",
 			"info log/log_test.go:140 Hello, world2",
 			"warn log/log_test.go:141 Hello, world3",
 			"error log/log_test.go:142 Hello, world4",
