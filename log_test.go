@@ -134,16 +134,17 @@ func TestGlobalLogger(t *testing.T) {
 		opts.ConsoleLevel = DebugLevel.String()
 		opts.DisableConsoleColor = true
 		opts.DisableConsoleCaller = false
-		Configure(opts, WithLevelEncoder(zapcore.LowercaseLevelEncoder))
+		opts.LevelEncoder = zapcore.LowercaseLevelEncoder
+		Configure(opts)
 		L().Debugf("Hello, %s", name+"1")
 		L().Infof("Hello, %s", name+"2")
 		L().Warnf("Hello, %s", name+"3")
 		L().Errorf("Hello, %s", name+"4")
 		expected := []string{
-			"debug log/log_test.go:138 Hello, world1",
-			"info log/log_test.go:139 Hello, world2",
-			"warn log/log_test.go:140 Hello, world3",
-			"error log/log_test.go:141 Hello, world4",
+			"debug log/log_test.go:139 Hello, world1",
+			"info log/log_test.go:140 Hello, world2",
+			"warn log/log_test.go:141 Hello, world3",
+			"error log/log_test.go:142 Hello, world4",
 		}
 		_ = w.Close()
 		stdout, _ := io.ReadAll(r)
@@ -172,10 +173,9 @@ func TestGlobalLogger(t *testing.T) {
 		opts.DisableConsoleColor = true
 		opts.DisableConsoleCaller = false
 		opts.CallerSkip = -1
-		Configure(opts,
-			WithLevelEncoder(zapcore.LowercaseLevelEncoder),
-			WithCallerEncoder(zapcore.ShortCallerEncoder),
-		)
+		opts.LevelEncoder = zapcore.LowercaseLevelEncoder
+		opts.CallerEncoder = zapcore.ShortCallerEncoder
+		Configure(opts)
 		L().Debugf("Hello, %s", name+"1")
 		L().Infof("Hello, %s", name+"2")
 		L().Warnf("Hello, %s", name+"3")
@@ -255,10 +255,10 @@ func TestLoggerFile(t *testing.T) {
 	opts.DisableConsole = true
 	opts.DisableFile = false
 	opts.Output = tmp
-
-	Configure(opts, WithFilenameEncoder(func() string {
+	opts.FilenameEncoder = func() string {
 		return "test.log"
-	}))
+	}
+	Configure(opts)
 	Info("Hello, world!")
 	assert.Equal(t, filepath.Join(tmp, "test.log"), EncodedFilename())
 	_ = os.Remove(EncodedFilename())
@@ -268,7 +268,8 @@ func TestLoggerClose(t *testing.T) {
 	t.Run("close logger without log file", func(t *testing.T) {
 		str := "close logger without log file"
 		opts := NewOptions()
-		Configure(opts, WithTimeEncoder(DefaultTimeEncoder))
+		opts.TimeEncoder = DefaultTimeEncoder
+		Configure(opts)
 		defer func() {
 			if err := recover(); err != nil {
 				assert.Equal(t, err, str)

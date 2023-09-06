@@ -49,6 +49,15 @@ type Options struct {
 
 	// Output directory for logging when DisableFile is false
 	Output string `json:"output" mapstructure:"output"`
+
+	// FilenameEncoder is used to set the log filename encoder.
+	FilenameEncoder FilenameEncoder `json:"-" mapstructure:"-"`
+	// TimeEncoder is used to set the log time encoder.
+	TimeEncoder TimeEncoder `json:"-" mapstructure:"-"`
+	// LevelEncoder is used to set the log level encoder.
+	LevelEncoder LevelEncoder `json:"-" mapstructure:"-"`
+	// CallerEncoder is used to set the log caller encoder.
+	CallerEncoder CallerEncoder `json:"-" mapstructure:"-"`
 }
 
 // NewOptions creates an Options with default parameters.

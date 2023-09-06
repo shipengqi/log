@@ -18,23 +18,20 @@ type Logger struct {
 	closer          io.Closer
 	log             *zap.Logger
 	sugared         *zap.SugaredLogger
-	filenameEncoder FilenameEncoder
-	timeEncoder     TimeEncoder
-	levelEncoder    LevelEncoder
-	callerEncoder   CallerEncoder
 	encodedFilename string
 }
 
 // New creates a new Logger.
-func New(opts *Options, encoders ...Encoder) *Logger {
+func New(opts *Options) *Logger {
 	l := &Logger{}
-	if !opts.DisableFile && len(opts.Output) > 0 {
-		l.filenameEncoder = DefaultFilenameEncoder
+	// set a default filename encoder if log file is enabled
+	if !opts.DisableFile && len(opts.Output) > 0 && opts.FilenameEncoder == nil {
+		opts.FilenameEncoder = DefaultFilenameEncoder
 	}
-	l.withEncoders(encoders...)
-	var cores []zapcore.Core
 
-	encoderConfig := l.getEncoderConfig()
+	var cores []zapcore.Core
+	// set encoders, will override the default encoder if exists
+	encoderConfig := l.getEncoderConfig(opts)
 
 	if !opts.DisableConsole {
 		var consoleLevel Level
@@ -52,7 +49,8 @@ func New(opts *Options, encoders ...Encoder) *Logger {
 		if !opts.DisableConsoleCaller {
 			consoleEncCfg.CallerKey = "caller"
 		}
-		if !opts.DisableConsoleColor && l.levelEncoder == nil {
+		// forces to use CapitalColorLevelEncoder if LevelEncoder is not set when console color is enabled
+		if !opts.DisableConsoleColor && opts.LevelEncoder == nil {
 			consoleEncCfg.EncodeLevel = zapcore.CapitalColorLevelEncoder
 		}
 		consoleLevelEnabler := zap.LevelEnablerFunc(func(lvl zapcore.Level) bool {
@@ -93,7 +91,7 @@ func New(opts *Options, encoders ...Encoder) *Logger {
 		fileLevelEnabler := zap.LevelEnablerFunc(func(lvl zapcore.Level) bool {
 			return lvl >= fileLevel
 		})
-		syncer, closer, encodedFilename = rollingFileEncoder(opts, l.filenameEncoder)
+		syncer, closer, encodedFilename = rollingFileEncoder(opts, opts.FilenameEncoder)
 		cores = append(cores, zapcore.NewCore(fileEncoder, syncer, fileLevelEnabler))
 	}
 	core := zapcore.NewTee(cores...)
@@ -109,13 +107,6 @@ func New(opts *Options, encoders ...Encoder) *Logger {
 		closer:          closer,
 		encodedFilename: encodedFilename,
 	}
-}
-
-func (l *Logger) withEncoders(encoders ...Encoder) *Logger {
-	for _, encoder := range encoders {
-		encoder.apply(l)
-	}
-	return l
 }
 
 func (l *Logger) DebugLogger() DebugLogger {
@@ -309,7 +300,7 @@ func (l *Logger) EncodedFilename() string {
 	return l.encodedFilename
 }
 
-func (l *Logger) getEncoderConfig() zapcore.EncoderConfig {
+func (l *Logger) getEncoderConfig(opts *Options) zapcore.EncoderConfig {
 	encoderConfig := zapcore.EncoderConfig{
 		NameKey:          "logger",
 		MessageKey:       "msg",
@@ -320,14 +311,14 @@ func (l *Logger) getEncoderConfig() zapcore.EncoderConfig {
 		EncodeCaller:     zapcore.ShortCallerEncoder,
 		ConsoleSeparator: " ",
 	}
-	if l.timeEncoder != nil {
-		encoderConfig.EncodeTime = l.timeEncoder
+	if opts.TimeEncoder != nil {
+		encoderConfig.EncodeTime = opts.TimeEncoder
 	}
-	if l.levelEncoder != nil {
-		encoderConfig.EncodeLevel = l.levelEncoder
+	if opts.LevelEncoder != nil {
+		encoderConfig.EncodeLevel = opts.LevelEncoder
 	}
-	if l.callerEncoder != nil {
-		encoderConfig.EncodeCaller = l.callerEncoder
+	if opts.CallerEncoder != nil {
+		encoderConfig.EncodeCaller = opts.CallerEncoder
 	}
 	return encoderConfig
 }
