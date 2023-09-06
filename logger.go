@@ -49,6 +49,10 @@ func New(opts *Options) *Logger {
 		if !opts.DisableConsoleCaller {
 			consoleEncCfg.CallerKey = "caller"
 		}
+		// forces to use CapitalColorLevelEncoder if LevelEncoder is not set when console color is enabled
+		if !opts.DisableConsoleColor && opts.LevelEncoder == nil {
+			consoleEncCfg.EncodeLevel = zapcore.CapitalColorLevelEncoder
+		}
 		consoleLevelEnabler := zap.LevelEnablerFunc(func(lvl zapcore.Level) bool {
 			return lvl >= consoleLevel
 		})
