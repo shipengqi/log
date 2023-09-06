@@ -91,8 +91,8 @@ type Interface interface {
 }
 
 // Configure sets up the global logger.
-func Configure(opts *Options, encoders ...Encoder) {
-	l := New(opts, encoders...)
+func Configure(opts *Options) {
+	l := New(opts)
 	_globalL = l
 	zap.RedirectStdLog(_globalL.log)
 }

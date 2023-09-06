@@ -11,45 +11,6 @@ import (
 	lumberjack "gopkg.in/natefinch/lumberjack.v2"
 )
 
-type Encoder interface {
-	apply(l *Logger)
-}
-
-// encoderFunc wraps a func so it satisfies the Encoder interface.
-type encoderFunc func(*Logger)
-
-func (f encoderFunc) apply(l *Logger) {
-	f(l)
-}
-
-// WithFilenameEncoder is used to set the log filename encoder.
-func WithFilenameEncoder(encoder FilenameEncoder) Encoder {
-	return encoderFunc(func(l *Logger) {
-		l.filenameEncoder = encoder
-	})
-}
-
-// WithTimeEncoder is used to set the log time encoder.
-func WithTimeEncoder(encoder TimeEncoder) Encoder {
-	return encoderFunc(func(l *Logger) {
-		l.timeEncoder = encoder
-	})
-}
-
-// WithLevelEncoder is used to set the log level encoder.
-func WithLevelEncoder(encoder LevelEncoder) Encoder {
-	return encoderFunc(func(l *Logger) {
-		l.levelEncoder = encoder
-	})
-}
-
-// WithCallerEncoder is used to set the log caller encoder.
-func WithCallerEncoder(encoder CallerEncoder) Encoder {
-	return encoderFunc(func(l *Logger) {
-		l.callerEncoder = encoder
-	})
-}
-
 // FilenameEncoder log filename encoder,
 // return the full name of the log file.
 type FilenameEncoder func() string

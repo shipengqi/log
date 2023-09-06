@@ -43,4 +43,16 @@ func Test_Default_Options_Validate(t *testing.T) {
 		assert.Equal(t, "unrecognized level: \"errorlevel\"", errs[0].Error())
 		assert.Equal(t, "unrecognized level: \"errorlevel\"", errs[1].Error())
 	})
+
+	t.Run("options string", func(t *testing.T) {
+		opts := NewOptions()
+		opts.ConsoleLevel = "errorlevel"
+		opts.FileLevel = "errorlevel"
+		opts.FilenameEncoder = DefaultFilenameEncoder
+
+		output := opts.String()
+		assert.Contains(t, output, `"console-level":"errorlevel"`)
+		assert.Contains(t, output, `"file-level":"errorlevel"`)
+		assert.NotContains(t, output, "encoder")
+	})
 }
