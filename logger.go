@@ -25,7 +25,7 @@ type Logger struct {
 func New(opts *Options) *Logger {
 	l := &Logger{}
 	// set a default filename encoder if log file is enabled
-	if !opts.DisableFile && len(opts.Output) > 0 {
+	if !opts.DisableFile && len(opts.Output) > 0 && opts.FilenameEncoder == nil {
 		opts.FilenameEncoder = DefaultFilenameEncoder
 	}
 
