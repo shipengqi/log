@@ -11,6 +11,9 @@ type Field = zapcore.Field
 // Level is an alias for the zapcore.Level.
 type Level = zapcore.Level
 
+// CheckedEntry is an alias for the zapcore.CheckedEntry.
+type CheckedEntry = zapcore.CheckedEntry
+
 // TimeEncoder is an alias for the zapcore.TimeEncoder.
 type TimeEncoder = zapcore.TimeEncoder
 

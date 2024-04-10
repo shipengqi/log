@@ -265,6 +265,10 @@ func (l *Logger) AtLevelf(level Level, msg string, args ...interface{}) {
 }
 
 // Sugared returns sugared logger.
+// SugaredLogger wraps the Logger to provide a more ergonomic, but slightly slower,
+// API. Sugaring a Logger is quite inexpensive, so it's reasonable for a
+// single application to use both Loggers and SugaredLoggers, converting
+// between them on the boundaries of performance-sensitive code.
 func (l *Logger) Sugared() *zap.SugaredLogger {
 	return l.sugared
 }
@@ -294,6 +298,13 @@ func (l *Logger) Close() error {
 		return l.closer.Close()
 	}
 	return nil
+}
+
+// Check returns a CheckedEntry if logging a message at the specified level
+// is enabled. It's a completely optional optimization; in high-performance
+// applications, Check can help avoid allocating a slice to hold fields.
+func (l *Logger) Check(lvl Level, msg string) *CheckedEntry {
+	return l.log.Check(lvl, msg)
 }
 
 func (l *Logger) EncodedFilename() string {
