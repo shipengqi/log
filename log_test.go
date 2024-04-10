@@ -358,6 +358,25 @@ func TestStdInfoLogger(t *testing.T) {
 	})
 }
 
+func TestCheck(t *testing.T) {
+	r, w, _ := os.Pipe()
+	tmp := os.Stdout
+	defer func() {
+		os.Stdout = tmp
+	}()
+	os.Stdout = w
+	opts := NewOptions()
+	Configure(opts)
+
+	ce := Check(InfoLevel, "Hello, world!")
+	if ce != nil {
+		ce.Write(String("checked field", "checked field value"))
+	}
+	_ = w.Close()
+	stdout, _ := io.ReadAll(r)
+	assert.Contains(t, string(stdout), "Hello, world! {\"checked field\": \"checked field value\"}")
+}
+
 // fileWithLineNum return the file name and line number of the current file
 func fileWithLineNum() string {
 	for i := 4; i < 15; i++ {

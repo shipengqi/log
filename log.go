@@ -229,3 +229,10 @@ func Flush() error { return _globalL.Flush() }
 
 // Close implements io.Closer, and closes the current logfile of default logger.
 func Close() error { return _globalL.Close() }
+
+// Check returns a CheckedEntry if logging a message at the specified level
+// is enabled. It's a completely optional optimization; in high-performance
+// applications, Check can help avoid allocating a slice to hold fields.
+func Check(lvl Level, msg string) *CheckedEntry {
+	return _globalL.Check(lvl, msg)
+}
