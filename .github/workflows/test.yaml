@@ -3,9 +3,16 @@ name: test
 on:
   push:
     branches: [ main ]
+    paths-ignore:
+      - 'docs/**'
+      - 'README.md'
+      - '.goreleaser.yaml'
   pull_request:
     branches: [ main ]
-
+    paths-ignore:
+      - 'docs/**'
+      - 'README.md'
+      - '.goreleaser.yaml'
 jobs:
   unit-test:
     runs-on: ubuntu-latest
